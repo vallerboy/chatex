@@ -26,8 +26,8 @@
 
             webSocket.onmessage = function (ev) {
                 let listObject = document.getElementById("messages");
-                if(ev.data.contains("<server>")){
-                    listObject.innerHTML = listObject.innerHTML + "<li><b>" + ev.data.replace("<server>", "") + "</b></li>";
+                if(ev.data.startsWith("<server>")){
+                    listObject.innerHTML = listObject.innerHTML + "<li style='color: red'><b>" + ev.data.replace("<server>", "") + "</b></li>";
                     return;
                 }
                 listObject.innerHTML = listObject.innerHTML + "<li>" + ev.data + "</li>";

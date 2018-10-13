@@ -43,7 +43,7 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         users.add(new UserModel(session));
-        session.sendMessage(new TextMessage("Twoja pierwsza wiadomość, będzie Twoim nickiem"));
+        session.sendMessage(new TextMessage("<server>Twoja pierwsza wiadomość, będzie Twoim nickiem"));
 
     }
 
