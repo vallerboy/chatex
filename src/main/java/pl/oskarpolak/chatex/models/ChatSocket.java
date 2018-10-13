@@ -16,7 +16,7 @@ import java.util.List;
 @EnableWebSocket
 public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigurer {
 
-    private List<WebSocketSession> users = new ArrayList<>();
+    private List<UserModel> users = new ArrayList<>();
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
@@ -25,18 +25,35 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        users.remove(session);
+        users.remove(findUserModelBySession(session));
+    }
+
+    private UserModel findUserModelBySession(WebSocketSession session) {
+        return users
+                .stream()
+                .filter(s -> s.getSession().getId().equals(session.getId()))
+                .findAny()
+                .get();
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        users.add(session);
+        users.add(new UserModel(session));
+
+        session.sendMessage(new TextMessage("Twoja pierwsza wiadomość, będzie Twoim nickiem"));
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        for (WebSocketSession user : users) {
-            user.sendMessage(message);
+        UserModel sender = findUserModelBySession(session);
+        if(sender.getNick() == null){
+            sender.setNick(message.getPayload());
+            sender.getSession().sendMessage(new TextMessage("Twój nick został ustawiony"));
+            return;
+        }
+
+        for (UserModel user : users) {
+             user.getSession().sendMessage(new TextMessage(sender.getNick() + ": " + message.getPayload()));
         }
     }
 }
