@@ -9,6 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,9 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        UserModel userModel = findUserModelBySession(session);
+        sendMessageToAllWithoutMe(userModel, userModel.getNick() + ", opuścił chat");
+
         users.remove(findUserModelBySession(session));
     }
 
@@ -39,8 +43,8 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         users.add(new UserModel(session));
-
         session.sendMessage(new TextMessage("Twoja pierwsza wiadomość, będzie Twoim nickiem"));
+
     }
 
     @Override
@@ -53,6 +57,8 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
             }
             sender.setNick(message.getPayload());
             sender.getSession().sendMessage(new TextMessage("Twój nick został ustawiony"));
+
+            sendMessageToAllWithoutMe(sender, message.getPayload() + ", dołączył do chatu");
             return;
         }
 
@@ -68,5 +74,17 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
             }
         }
         return true;
+    }
+
+    private void sendMessageToAllWithoutMe(UserModel userModel, String message){
+        for (UserModel user : users) {
+            if(!user.equals(userModel)){
+                try {
+                    user.getSession().sendMessage(new TextMessage(message));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
