@@ -9,8 +9,8 @@
     <div style="text-align: center">
         <ul id="messages"></ul>
 
-        <form>
-            <input type="text" placeholder="Podaj wiadomość">
+        <form onsubmit="sendMessage(); return false;">
+            <input id="typedText" type="text" placeholder="Podaj wiadomość">
         </form>
     </div>
 
@@ -18,11 +18,19 @@
             var webSocket = new WebSocket("ws://localhost:8080/chat");
             //TypeScript
 
+
             webSocket.onopen = function (event) {
                 console.log("Nawiązano połączenie");
-                webSocket.send("Witaj świecie");
-            }
+            };
 
+            function sendMessage() {
+                let inputObject = document.getElementById("typedText");
+                let inputText =  inputObject.value;
+
+
+                inputObject.value = "";
+                webSocket.send(inputText);
+            }
 
     </script>
 </body>
