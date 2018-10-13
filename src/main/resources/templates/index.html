@@ -13,5 +13,16 @@
             <input type="text" placeholder="Podaj wiadomość">
         </form>
     </div>
+
+    <script type="text/javascript">
+            var webSocket = new WebSocket("ws://localhost:8080/chat");
+            //TypeScript
+
+            webSocket.onopen = function (event) {
+                console.log("Nawiązano połączenie");
+            }
+
+
+    </script>
 </body>
 </html>
