@@ -47,6 +47,10 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         UserModel sender = findUserModelBySession(session);
         if(sender.getNick() == null){
+            if(!isNickFree(message.getPayload())){
+                sender.getSession().sendMessage(new TextMessage("Ten nick jest zajęty"));
+                return;
+            }
             sender.setNick(message.getPayload());
             sender.getSession().sendMessage(new TextMessage("Twój nick został ustawiony"));
             return;
@@ -55,5 +59,14 @@ public class ChatSocket extends TextWebSocketHandler implements WebSocketConfigu
         for (UserModel user : users) {
              user.getSession().sendMessage(new TextMessage(sender.getNick() + ": " + message.getPayload()));
         }
+    }
+
+    private boolean isNickFree(String nick){
+        for (UserModel user : users) {
+            if(user.getNick() != null && user.getNick().equals(nick)){
+                return false;
+            }
+        }
+        return true;
     }
 }
