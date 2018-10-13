@@ -16,11 +16,17 @@
 
     <script type="text/javascript">
             var webSocket = new WebSocket("ws://localhost:8080/chat");
+
             //TypeScript
 
 
             webSocket.onopen = function (event) {
                 console.log("Nawiązano połączenie");
+            };
+
+            webSocket.onmessage = function (ev) {
+                let listObject = document.getElementById("messages");
+                listObject.innerHTML = listObject.innerHTML + "<li>" + ev.data + "</li>";
             };
 
             function sendMessage() {
