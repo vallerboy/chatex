@@ -20,6 +20,7 @@
 
             webSocket.onopen = function (event) {
                 console.log("Nawiązano połączenie");
+                webSocket.send("Witaj świecie");
             }
 
 
